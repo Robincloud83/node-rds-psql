@@ -1,28 +1,21 @@
-# --- Stage 1: Build Stage ---
-FROM node:20-alpine AS builder
+# Use Node.js LTS (18) as the base image
+FROM node:18-alpine
 
-# Set working directory
-WORKDIR /app
+# Set working directory inside the container
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json first
+# Copy package.json and package-lock.json first for efficient caching
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (only production dependencies)
 RUN npm install --production
+RUN npm install aws-sdk
 
-# Copy app source code
+# Copy application code
 COPY . .
 
-# --- Stage 2: Runtime Stage ---
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Copy only necessary files from builder stage
-COPY --from=builder /app /app
-
-# Expose app port
+# Expose the application port (change if needed, e.g., 8080)
 EXPOSE 3000
 
-# Run the application
-CMD ["node", "index.js"]
+# Start the app
+CMD ["node", "app.js"]
