@@ -1,11 +1,20 @@
-FROM node:18
+# Use Node.js LTS (18) as the base image
+FROM node:18-alpine
 
+# Set working directory inside the container
 WORKDIR /usr/src/app
 
+# Copy package.json and package-lock.json first for efficient caching
 COPY package*.json ./
-RUN npm install
 
+# Install dependencies (only production dependencies)
+RUN npm install --production
+
+# Copy application code
 COPY . .
 
+# Expose the application port
 EXPOSE 3000
-CMD ["node", "app.js"]
+
+# Start the app
+CMD ["npm", "start"]
